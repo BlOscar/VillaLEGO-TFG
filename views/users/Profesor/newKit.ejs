@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script defer src="/kit.js"></script>
+
+    <link rel="stylesheet" href="/style.css">
+
+</head>
+<body>
+    <dialog id="dialog-error">
+    </dialog>
+    <div class="form-container">
+    <form id="kit-form" >
+        <label>Nombre del kit:</label>
+        <input type="text" id="name" name="name" required>
+        <br>
+        <label for="necesidades" class="input-form-label">Necesidades del Cliente</label>
+        
+        <input type="file" accept="application/pdf" id = "necesidades" required>
+        
+        <br>
+        <label>Cantidad</label>
+        <input type="text" id="quantity" name="quantity" required>
+        <button type="submit">Add kit</button>
+        <a href="/menu" class="btn-redirect">Regresar a menu</a>
+
+    </form>
+    
+</div>
+</body>
+</html>

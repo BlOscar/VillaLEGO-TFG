@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style.css">
+    <script src="/socket.io/socket.io.js"></script>
+
+</head>
+<body>
+    <div class="header" style="background-color: lightslategrey;">
+        <h6>username: <%=name%></h6>
+        <h6>Rol: Profesor</h6>
+            <a href="/logout" class="btn-redirect">Cerrar sesion</a></div>
+</div>
+    <script>
+        function changeModify(){
+            const modify = document.getElementById('modify-form');
+            if(modify.style.display === 'none'){
+                document.getElementById('modify-form').style = 'display: block;';
+                document.getElementById('visual-turn').style = 'display: none;';
+            }else{
+                document.getElementById('modify-form').style = 'display: none;';
+                document.getElementById('visual-turn').style = 'display: block;';
+            }
+            
+        }
+        const kitSelected = [];
+            function insertKit(){
+                debugger;
+                var kitId = document.getElementById('kitSelected');
+                debugger;
+                const quantity = document.getElementById('quantity').value;
+                var tempo = kitId[kitId.selectedIndex].getAttribute('data-quantity');
+                if(tempo >= Number(quantity)){
+                const kit = kitSelected.findIndex(e=> e[0] === kitId.value)
+                if(kit !== -1 || quantity === 0){
+                    kitSelected.splice(kit,1);
+                    var temp = document.getElementById(`kit-${kitId.textContent.trim()}`);
+                    temp.remove();
+                }
+                kitSelected.push([kitId.value,quantity]);
+                const kitselect = document.getElementById('kitsSelected');
+                const item = document.createElement('h6');
+                item.id = `kit-${kitId.options[kitId.selectedIndex].text}`;
+                item.textContent = `nombre: ${kitId.options[kitId.selectedIndex].text} cantidad: ${quantity}`;
+                kitselect.appendChild(item);
+            }
+            }
+        async function eliminateTurn(){
+            if(confirm("¿Seguro que desea eliminar este turno?")){
+                        const res = await fetch(`http://localhost:8000/turno/api/<%=turn.id%>/removeTurn`,{
+                        method:"DELETE",
+                        headers:{
+                            "Content-Type":"application/json"
+                        }
+                        });
+                        
+                        if(res.ok){
+                            window.location.href = "/menu";    
+                        }
+                    }
+        }
+            
+    </script>
+
+    <div class=" container-grid container">
+            <a href="/menu" class="btn-redirect">Regresar a menu</a>
+
+    <div id="visual-turn">
+
+    <div class = "text-center">
+    <h2>Turno: <%= turn.name %></h2>
+        <h2>Codigo: <%= turn.codeTurn %></h2>
+
+    </div>
+    <h4>Kits asignados</h4>
+    <div class="scroll-container" >
+        <table>
+            <tbody>
+
+            <% kitsAdded.forEach (kit => { %>
+                <tr>
+                    <td>
+                        <a href="/kit/<%= kit.id %>/show"><h6>- <%= kit.name %></h6></a>
+                    </td>
+                </tr>
+            <% }); %>
+            </tbody>
+        </table>
+    </div>
+    <h4>Equipos: </h4>
+    <div class="scroll-container" >
+
+        <table>
+            <tbody>
+
+            <% teams.forEach (team => { %>
+                <tr>
+                    <td>
+                        <a href="/team/<%= team.id %>/showTeam"><h6>- <%= team.name %></h6></a>
+                    </td>
+                </tr>
+            <% }); %>
+            
+            </tbody>
+        </table>
+    </div>
+    <h5>Alumnos inscritos: </h5>
+        <% if(students){ 
+        students.forEach(student =>{ %>
+            <h6>nombre: <%= student.name %><button onclick="removeStudent(<%= student.id %>)">Eliminar</button>
+</h6>
+        <% })
+            if(!turn.isStarted){%>
+                <form id="start-activity">
+                    <button>iniciar Actividad</button>
+                </form>
+            <%} %>
+        
+        <%}else{%>
+            <h6>No hay ningun alumno inscrito en este turno</h6>
+            <% if(!turn.isStarted){%>
+        <button onclick="changeModify()">modificar</button>
+
+        
+        <%}}%>
+        <%if(!turn.isStarted){ %>
+            <button onclick="eliminateTurn()" id="remove-turn">eliminar turno</button>
+            
+        <%}%>
+    </div>
+    <div id= 'modify-form' class="container-grid container" style="display: none;">
+        <form id="form-modify-turn">
+        <label>Fecha de inicio:</label>
+        <input type="date" id="date" name="date" max="3000-01-01" onfocus="this.min = new Date().toISOString().split('T')[0]">
+        <input type="time" id="time" name="time">
+        <label>Kits disponibles</label>
+        <br>
+        <% if(kitsLeft.length != 0){ %>
+        <select id="kitSelected">
+
+        <% kitsLeft.forEach (kit => { %>
+            <option data-quantity = '<%= kit.quantity %>' value="<%=kit.id%>"><%= kit.name %></option>
+        <% }); %>
+        </select>
+
+        
+        <p class="input-form-label">                    
+            <input type="number" name="quantity" id="quantity" placeholder="numero de kits disponibles">
+        </p>
+        <div id="kitsSelected">
+
+        </div>
+        <button type="button" onclick="insertKit()">seleccionar kit</button>
+        <button type="submit">a</button>
+        
+        <% } else { %>
+            <h6>No hay kits disponibles</h6>
+            <% } %>
+        </form>
+    </div>
+    
+    
+</body>
+<script>
+    const turnId = <%- turn.id %>;
+
+    document.getElementById('start-activity').addEventListener("submit", async (e) =>{
+            e.preventDefault();
+            const res = await fetch(`http://localhost:8000/turno/api/${turnId}/startActivity`,{
+                method:"PUT",
+                headers:{
+                "Content-Type":"application/json"
+                }
+            });
+            if(res.ok){
+                window.location.href = `/activity/${turnId}/session`;
+            }else{
+                alert("No se ha podido iniciar la actividad, se necesita almenos un equipo con 3 alumnos");
+            }
+        });
+    
+    document.getElementById("form-modify-turn").addEventListener("submit", async (e) =>{
+                e.preventDefault();
+                debugger;
+                const date = new Date(document.getElementById("date").value);
+                const time = document.getElementById("time").value;
+                date.setHours(time.split(':')[0]);
+                date.setMinutes(time.split(':')[1]); 
+                const res = await fetch(`http://localhost:8000/turno/api/${turnId}/update`,{
+                method:"PUT",
+                headers:{
+                "Content-Type":"application/json"
+                },
+                body: JSON.stringify({
+                startDate: date,
+                kitList: kitSelected
+                })
+            });
+            if(res.ok){
+                location.reload();
+            }else{
+                        
+                const response = await res.json();
+                alert("Ha habido un error durante la modificación: " + response.error);
+            }
+
+            });
+            document.getElementById('remove-turn').addEventListener('click',async (e) =>{
+                    debugger;
+                    
+                })
+    async function removeStudent(id){
+        debugger;
+        const res = await fetch(`http://localhost:8000/turno/api/${turnId}/removeStudent`,{
+                method:"DELETE",
+                headers:{
+                "Content-Type":"application/json"
+                },
+                body: JSON.stringify({
+                userid: id
+                })
+            });
+        if(res.ok){
+            window.location.reload();
+        }else{
+            alert("no se pudo eliminar al alumno");
+        }
+    }
+</script>

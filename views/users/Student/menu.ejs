@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style.css">
+    <script src="/socket.io/socket.io.js"></script>
+
+</head>
+<body>
+    <div class="header" style="background-color: lightslategrey;">
+        <h6>Usuario: <%=user.name%></h6>
+        <h6>Rol: Alumno</h6>
+        <a href="/logout" class="btn-redirect">Cerrar sesion</a>
+    </div>
+    <div class="container" style="justify-content: center;">
+    <div class="container-grid">
+        <section style="margin: 10 px;padding: 0.15px 10px; border: 1px solid grey; border-radius: 16px">
+            <h3>Lista de Turnos Inscritos: </h3>
+            <% if(turnoList && turnoList.length === 0){ %>
+                <p>No estás en ningún turno</p>
+
+            
+            <%}else{%>
+                <div class="scroll-container">
+            <% turnoList.forEach(t =>{ %>
+                <h4>Turno: <%= t[1].name %></h6>
+                <p>Fecha Inicio:<h6 name="patata[]" id="start-time<%= t[1].id%>"><%= t[1].startDate.toISOString() %></h6></p>
+                <% if(t[0]){ 
+                    if(t[1].isStarted){%>
+                    <a href="/activity/<%= t[1].id%>/play" class="btn-redirect" style="background-color: green;">Ir a actividad</a>
+
+                    <%}else{%>
+
+                    <a href="/team/<%= t[1].teams[0].id %>/showTeam" class="btn-redirect" style="background-color:aqua; color:black">Ver equipo</a>
+
+                <%}}else{%>
+                    <a href="/turno/<%= t[1].id %>/showTeams" class="btn-redirect">Unirse a Equipo</a>
+                <% } %>
+
+                
+
+            <% }) %>
+            </div>
+            <% } %>
+
+        </section>
+    </div>
+    <div class="container-grid" style="flex-direction: column ;padding: 10px;">
+        <button onclick="joinTurn()">Unirse a turno</button>
+    </div>
+</div>
+    <script>
+        function getHora(){
+            var turno = <%- JSON.stringify(turnoList) %>;
+            turno.forEach(p =>{
+                const time = document.getElementById(`start-time${p[1].id}`).textContent;
+                let prueba = new Date(time);
+                document.getElementById(`start-time${p[1].id}`).textContent = "Día: " + prueba.toLocaleDateString('es-ES') + "\tHora: "+ prueba.toLocaleTimeString('es-ES');
+            });
+        }
+        getHora();
+    </script>
+    <script>
+        async function joinTurn(){
+            debugger;
+            let code = prompt("Please enter the code turn", "");
+            if (code != null) {
+                const res = await fetch("http://localhost:8000/turno/join",{
+                method:"POST",
+                headers:{
+                "Content-Type":"application/json"
+                },
+                body: JSON.stringify({
+                    codeTurn: code
+                })
+                });
+                if(res.ok){
+                    window.location.reload();
+                }else{
+                                
+                    const response = await res.json();
+                    alert("Ha habido un error durante la creación: " + response.error);
+                }
+            }
+        }
+        var socket = io();
+        socket.emit('login', {role: 'alumno', id: <%-user.id%>})
+        socket.on('startActivity', (data)=>{
+            debugger;
+            window.location.href = `/activity/${data.turnid}/play`;
+            if(confirm(`Se ha iniciado una actividad en la que participas, ¿deseas unirte?`) === true){
+                window.location.href = `/activity/${data.turnid}/play`;
+            }
+        })
+    </script>
+</body>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style.css">
+
+</head>
+<body>
+    <table>
+        <tr>
+            <th>Nombre HU</th>
+            <th>Priorización</th>
+            <th>Tamaño</th>
+            <th>Acción</th>
+        </tr>
+        <%Hus.forEach(hu=>{ %>
+            <tr>
+                <td><%=hu.name%></td>
+                <td><%=hu.priority%></td>
+                <td><%=hu.size%></td>
+                <td><button onclick='seeHU(<%-JSON.stringify(hu)%>)'>ver</button> </td>
+               
+
+            </tr>
+        <%})%>
+    </table>
+    
+
+<dialog id="hu_view">
+    <div style="display: flex;
+    flex-direction: column;">
+  <div class="header">
+        
+        <% if(poWrite){%>
+                <form id="hu-sprints" class="form-HU">
+            <select id="priority" style="width: 100%; margin-right: 50px;">
+                <option value="M">M</option>
+                <option value="S">S</option>
+                <option value="C">C</option>
+                <option value="W">W</option>
+            </select>
+        <%}else{%>
+            <p id="priority-content" style="font-size: xx-large;">M</p>
+        <%}%>
+        <strong id="nameHU" style="font-size: xx-large;  margin-left: 50px;margin-right: 50px;">HU 1.1: Chalet</strong>
+        <% if(devWrite && turn.state === 3){%>
+                <form id="hu-sprints">
+
+            <input id="size" type="number" maxlength="10" style="width: 10%;" placeholder="T" />
+        <%}else{%>
+            <p id="size-content" style="font-size: xx-large;">M</p>
+        <%}%>
+
+    </div>
+  
+    <div style="display: flex; justify-content: space-between;margin:10px;">
+        <p id="hu-description"></p>
+                <img id="hu_image" src="" class="image">
+
+    
+    </div>
+    <% if(poWrite){%>
+                
+
+        <button style="background-color: lightblue; border: 1px;">Seleccionar</button>
+                
+        </form>
+    <%}else if(turn.state===3){
+            if(SMWrite){ %>
+        </form>
+        
+        <button target= "button" onclick="addHUSprint()"  style="background-color: lightblue; border: 1px;">Introducir en Sprint</button>
+        
+    
+
+    <%      }else if(devWrite){%>
+                
+
+        <button style="background-color: lightblue; border: 1px;">Introducir tamaño</button>
+                
+        </form>
+        <%}}%>
+        </div>
+</dialog>
+    <script defer>
+        const HUs = <%- JSON.stringify(Hus); %>
+
+        async function addHUSprint(){
+            const name = document.getElementById('nameHU').textContent; 
+            const hu = HUs.find(p=> p.name === name);
+            debugger;
+            if(hu){
+                const res = await fetch(`http://localhost:8000/activity/api/<%=turn.id%>/addHUSprint`,{
+                    method:"POST",
+                    headers:{
+                    "Content-Type":"application/json"
+                    },
+                    body: JSON.stringify({
+                        huId: hu.id
+                    })
+                });
+                if(res.ok){
+                    window.location.reload();
+                }
+            }
+
+        }
+        document.getElementById('hu-sprints').addEventListener('submit', async (e)=>{
+            e.preventDefault();
+            debugger;
+            const priority = document.getElementById('priority')?.value;
+            const size = document.getElementById('size')?.value;
+            const name = document.getElementById('nameHU').textContent;
+            const hu = HUs.find(p=> p.name === name);
+            if(hu && (priority || size)){
+            const res = await fetch(`http://localhost:8000/activity/api/<%=turn.id%>/addHUTeam`,{
+                method:"POST",
+                headers:{
+                "Content-Type":"application/json"
+                },
+                body: JSON.stringify({
+                    huId: hu.id,
+                    priority: priority,
+                    size: size
+                })
+            });
+            if(res.ok){
+                window.location.reload();
+            }
+            }
+            
+        });
+
+        function seeHU(hu){
+            debugger;
+            const dialog = document.getElementById('hu_view');
+            document.getElementById('nameHU').textContent = hu.name;
+            document.getElementById('hu_image').src ='/'+ hu.imageUrl;
+            document.getElementById('hu-description').textContent = hu.description;
+            let temp = document.getElementById('priority-content');
+            if(temp){
+                document.getElementById('priority-content').textContent =hu.priority
+            }
+            temp = document.getElementById('size-content');
+            if(temp){
+                document.getElementById('size-content').textContent =hu.size;
+            }
+            
+            dialog.showModal();
+            
+        }
+    </script>
+</body>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style.css">
+    <script src="/socket.io/socket.io.js"></script>
+
+
+</head>
+<body>
+    <dialog id='description'>
+        
+    </dialog>
+    <div class="header" style="background-color: lightslategrey;">
+        <h6>Fase Actual: <%=state[0]%></h6>
+        <h6>Rol: <%=state[1]%></h6>
+            <a href="/logout" class="btn-redirect">Cerrar sesion</a></div>
+    <% if(turn.state === -1){%>
+        <div class="container container-grid">
+        <h3>La Actividad Ha finalizado, muchas gracias por participar</h3>
+                    <a href="/menu" class="btn-redirect" style="background-color:brown;">Salir de Actividad</a>
+        </div>
+    <%}else{%>
+    
+    
+    <div class="container container-grid">
+        <div class="header">
+        <% if(views){ views.forEach(v=>{ %>
+            <a href='/activity/<%=turn.id%>/play?view=<%=v%>' class="btn-redirect"><%=v%></a>
+        <% })}%>
+            <a href="#" onclick="objetivePhase()" class="btn-redirect">Ver objetivo Fase</a>
+        </div>    
+        
+        
+        
+        <div style="width: 100%; height: auto;">
+            <% if(view){ %>
+            <%- include('partials/'+ view); %>
+            <%}%>
+        </div>
+        <a href="/menu" class="btn-redirect" style="background-color:brown;">Salir de Actividad</a>
+    </div>
+    <script defer>
+        function objetivePhase(){
+            debugger;
+            event.preventDefault();
+            const favIcon = document.getElementById('description');
+                favIcon.textContent = `<%=instructions%>`;
+        favIcon.showModal();
+            
+        }
+        objetivePhase();
+        
+    </script>
+    <script>
+        var socket = io();
+        socket.emit('login', {role: 'alumno', id: <%=turn.teams[0].users[0].id%>});
+        socket.on('continueActivity', (data)=>{
+            window.history.replaceState(null, '', window.location.pathname);
+            window.location.reload();
+        })
+    </script>
+    <%}%>
+</body>

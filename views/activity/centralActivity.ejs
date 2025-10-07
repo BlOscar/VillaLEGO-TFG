@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style.css">
+
+</head>
+<body>
+
+    <div class="header" style="background-color: lightslategrey;">
+        <h6>Usuario: <%=user.name%></h6>
+        <h6>Rol: <%=user.role%></h6>
+            <a href="/logout" class="btn-redirect">Cerrar sesion</a></div>
+    <div class="container-grid container">
+        <h3 class="text-center">Actividad: <%=turn.name%></h3>
+        <h6 class="text-left">Fase Actual: <%=state[0]%></h6>
+        <p id="demo"></p>
+        <table style="table-layout: fixed;">
+            <tr>
+                Lista Equipos
+            </tr>
+            <tr>
+                <th>
+                        Nombre Equipo
+                </th>
+                <th>
+                    Archivos
+                </th>
+            </tr>
+
+        <% state[1].forEach(team =>{ %>
+            <tr>
+                <td>
+                    <%=team.name %>
+                </td>
+                <td>
+                    <button onclick="seeArchives('<%=team.name%>')">Ver Archivos</button>
+                </td>
+            </tr>
+            <tr id="sprint-Content-<%=team.name%>" style="display: none;">
+                <td>
+                <%if(team.sprint){%>
+                <table>
+                <tr>
+                    <th>nombre HU</th>
+                    <th>imagen HU</th>
+                    <%if(turn.state !== -1){%>
+                        <th>Acciones</th>
+                    <%}else{%>
+                        <th>Validacion</th>    
+                    <%}%>
+                </tr>
+                <% 
+                team.sprint.results.forEach(result =>{
+                    if(result.POValidation){%>
+                    <tr>
+                        <td><%=result.HU.name%></td>
+                        <td><img src="/<%=result.urlimage%>" /></td>
+                        <td>
+                            <%if(turn.state === -1){
+                                if(result.ClientValidation){%>
+                                    <h6 style="color: green">Validado</h6>
+                                <%}else{%>
+                                    <h6 style="color: red">No Validado</h6>
+                                <%}%>
+                            <%}else if(isValidate){
+                                if(!result.ClientValidation){%>
+
+                                    <button onclick="validateResult(<%=result.id%>)">validar</button>
+                                <%}else{%>
+                                    <h6 style="color: green">Validado</h6>
+                                <%}%>
+                            <%}else{%>
+                                <button disabled="false">validar</button>
+                            <%}%>
+                        </td>
+                    </tr>
+                <%}})%>
+                </table>
+                </td>
+                <td>
+                    <p>Burndown Chart</p>
+                    <img src="/<%=team.sprint.burdownChart%>">
+                </td>
+                
+                <%}else {%>
+                <h6>no hay nada</h6>
+                </td>
+                <%}%>
+                
+                
+            </tr>
+            <tr id="sprint-Content-<%=team.name%>-info" style="display: none;">
+                <td>
+                    <p style="font-weight: 700;">Retrospectiva</p>
+                    <p><%=team.sprint?.improvement%></p>
+                    <p style="font-weight: 700;">Objetivo Equipo</p>
+                    <p><%=team.sprint?.objetive%></p>
+                </td>
+            </tr>
+        <%})%>
+        </table>
+        <%if(turn.state !== -1){ %>
+            <a href="" id="move-activity"class="btn-redirect" style="background-color: aquamarine;">Avanza Actividad</a>
+            <script defer>
+            document.getElementById("move-activity").addEventListener('click', async (e)=>{
+                e.preventDefault();
+                await changePhase();
+                });
+                
+            async function changePhase(){
+                const res = await fetch(`http://localhost:8000/activity/api/<%=turn.id%>/nextPhase`,{
+                    method:"PUT",
+                    headers:{
+                            "Content-Type":"application/json"
+                    }});
+                if(res.ok){
+                    window.location.reload();
+                }
+            }
+            </script>
+        <%}%>
+            <a href="/menu" class="btn-redirect" style="background-color:brown;">Salir de Actividad</a>
+
+    </div>
+    <script defer>
+        function seeArchives(name){
+            const archives = document.getElementById(`sprint-Content-${name}`);
+            const archive = document.getElementById(`sprint-Content-${name}-info`);
+
+            debugger;
+            if(archives.style.display === "none"){
+                archives.style.display = "";
+                archive.style.display = "";
+            }else{
+                archives.style.display = "none";
+                archive.style.display = "none";
+
+            }
+        }
+        
+    </script>
+    <%if(turn.state !== -1){%>
+        
+    <script defer>
+
+        async function validateResult(id){
+            debugger;
+            const res = await fetch(`http://localhost:8000/activity/api/<%=turn.id%>/verifyResult`,{
+                method:"PUT",
+                headers:{
+                        "Content-Type":"application/json"
+                
+                },
+                body: JSON.stringify({
+                    idResult: id
+                })
+                    
+            });
+            if(res.ok){
+
+                window.location.reload();
+            }else{
+                const message = res.json();
+
+                alert("ha habido un error con la validación", message.error);
+            }
+                
+        }
+          document.addEventListener("DOMContentLoaded", () => {
+
+        debugger;
+        const time = <%- JSON.stringify(timer) %>;
+        var timeServer = new Date(time).getTime();
+            var countDownDate = new Date("Jan 5, 2030 15:37:25").getTime();
+
+            var x = setInterval(async function() {
+
+            var now = new Date().getTime();
+    
+            var distance = timeServer - now;
+                
+            var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                
+            document.getElementById("demo").innerHTML = days + "d " + hours + "h "
+            + minutes + "m " + seconds + "s ";
+                
+            if (distance < 0) {
+                clearInterval(x);
+                document.getElementById("demo").innerHTML = "EXPIRED";
+                if(confirm("¿quieres cambiar de fase?")===true){
+                    await changePhase();
+                }
+            }
+            }, 1000);
+          })
+        
+    </script>
+    <%}%>
+    
+</body>

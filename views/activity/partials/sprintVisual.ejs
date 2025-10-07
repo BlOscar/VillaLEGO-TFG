@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style.css">
+
+</head>
+<body>
+
+    <% if(poWrite && turn.state === 3){ %>
+        <form id="addObjetive">
+            <label>Objetivo del Sprint</label>
+            <input id="objetive" type="text" placeholder="Objetivo" required>
+            <button type="submit">Añadir</button>
+        </form>
+        <script>
+            document.getElementById("addObjetive").addEventListener("submit", async(e) =>{
+                e.preventDefault();
+                const objetive = document.getElementById("objetive").value;
+                const res = await fetch("/activity/api/<%=turn.id%>/addObjetive",{
+                    method:"POST",
+                    headers:{
+                        "Content-Type":"application/json"
+                    },
+                    body: JSON.stringify({
+                        objetive: objetive
+                    })
+                })
+                if(res.ok){
+                    window.location.reload();
+                }else{
+                    alert("Ha habido un problema con la insercion del objetivo");
+                }
+            })
+        </script>
+    <%}else if(objetive !== null){%>
+        <h3>Objetivo del Sprint</h3>
+        <h6><%=objetive%></h6>    
+    <%}%>
+
+    <table>
+        <tr>
+            <th>Posicion</th>
+            <th>Nombre HU</th>
+            <th>Acción</th>
+            <%if(HuSprints){%>
+                <th>Resultados</th>
+            <%}%>
+        </tr>
+    <% if(HuSprints){
+        HuSprints.sort((x, y) => x.SprintHU.position - y.SprintHU.position).forEach(hu=>{ %>
+            <tr>
+                <td><%=hu.SprintHU.position%></td>
+                <td class="nameHU"><%=hu.name%></td>
+                <td>
+                <button onclick='seeHU(<%-JSON.stringify(hu)%>)'>ver</button>
+                </td>
+                <td>
+                <%if(hu.results && hu.results.length !== 0){%>
+                    
+                    <%hu.results.forEach(result =>{ %>
+                        <%if(poWrite && !result.POValidation){%>
+                            <button target= "button" onclick="approveHU(<%=hu.id%>)" class="button-container" style="background-color: lightgreen;">Aprobar HU</button>
+
+                            <button target= "button" onclick="eliminateHU(<%=hu.id%>)" class="button-container" style="background-color: lightcoral;">Eliminar Resultado</button>
+                        <%}%>
+                        <img src="/<%=result.urlimage%>" style="max-width: 100px; max-height: 100px;">
+                        <%if(result.ClientValidation){%>
+                            <h6 style="color: lightgreen;">Validado</h6>
+                        <%}else{%>
+                            <h6 style="color:crimson;">No Validado</h6>
+
+                        <%}%>
+                    <%})%>
+                <%}else{%>
+                    <% if(turn.state === 4){
+            if(devWrite){ %>
+            <input type="file" class="fileInput" accept="image/*" style="display: none">
+            <button target= "button" onclick="SubmitImage(this)" class="button-container" style="background-color: lightblue;">Tomar Foto</button>
+            <%}}%>
+                </td>
+            </tr>
+    <%}})}%>
+        </table>
+
+    <dialog id="hu_view">
+        <div class="header">
+            <p id="priority-content" style="font-size: xx-large;">M</p>
+            <p id="dialogHU" style="font-size: xx-large;">M</p>
+            <p id="size-content" style="font-size: xx-large;">0</p>
+        </div>
+  
+        <div>
+            <p id="hu-description"></p>
+            <img id="hu_image" src="" class="image">
+    
+        </div>
+        
+    </dialog>
+        <script defer>
+            function seeHU(hu){
+                const temp = <%- JSON.stringify(Hus); %>
+                const temp2 = temp.find(x=> x.id === hu.id);
+                const dialog = document.getElementById('hu_view');
+                debugger;
+                document.getElementById('dialogHU').textContent = temp2.name;
+                document.getElementById('hu_image').src ='/'+ temp2.imageUrl;
+                document.getElementById('hu-description').textContent = temp2.description;
+                document.getElementById('priority-content').textContent =temp2.priority;
+                document.getElementById('size-content').textContent =temp2.size;
+                dialog.showModal();
+            }
+
+            
+            const HUs = <%- JSON.stringify(HuSprints); %>
+            async function approveHU(id){
+                debugger;
+                const hu = HUs.find(p=> p.id === id);
+                debugger;
+                const res = await fetch(`http://localhost:8000/activity/api/<%=turn.id%>/verifyResultPO`,{
+                    method:"PUT",
+                    headers:{
+                                "Content-Type":"application/json"
+
+                    },
+                    body: JSON.stringify({
+                        idHU: hu.id
+                    })
+                    })
+                    if(res.ok){
+                        window.location.reload();
+                    }
+            }
+            async function eliminateHU(id){
+                const hu = HUs.find(p=> p.id === id);
+                debugger;
+                const res = await fetch(`http://localhost:8000/activity/api/<%=turn.id%>/eliminateResultPO`,{
+                    method:"DELETE",
+                    headers:{
+                                "Content-Type":"application/json"
+
+                    },
+                    body: JSON.stringify({
+                        idHU: hu.id
+                    })
+                    })
+                    if(res.ok){
+                        window.location.reload();
+                    }
+            }
+            
+            function SubmitImage(button){
+                const fileInput = button.parentElement.querySelector('.fileInput');
+                fileInput.click();
+            }
+
+            document.addEventListener('change', async (e)=>{
+                                debugger;
+
+                if (e.target && e.target.classList.contains('fileInput')) {
+                const file = e.target;
+                const fileInput = file.files[0];
+                if(fileInput){
+                    const row = file.closest('tr');
+                    const nameCell = row.querySelector('.nameHU');
+                    const name = nameCell.textContent.trim();
+                    const hu = HUs.find(p=> p.name === name);
+                const formData = new FormData();
+                    formData.append("fileInput", fileInput);
+                    formData.append("idHU", hu.id);
+                const res = await fetch(`http://localhost:8000/activity/api/<%=turn.id%>/addResultSprint`,{
+                method:"POST",
+                headers:{
+                },
+                body: formData
+                })
+                if(res.ok){
+                        window.location.reload();
+                    }
+                }else if(res.status === 409){
+                    alert("No es posible subir la imagen: Otro desarrollador ha subido una imagen");
+                }
+                
+                
+            }});
+        </script>
+</body>

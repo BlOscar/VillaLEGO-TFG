@@ -1,0 +1,120 @@
+body{
+    margin: 0;
+    background-color: lightblue;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: large;
+  }
+  .button-container{
+    width: 75%;
+    display: flex;
+    justify-content: center;
+    justify-self: center;
+    background-color: lightgreen;
+  }
+  .text-center{
+    text-align: center;
+  }
+  .text-left{
+    text-align: left;
+  }
+  .form-container{
+    width: 500px;
+    background-color: white;
+    border-radius: 10px;
+    padding: 10px;
+    justify-self: center;
+    margin: 10px 30px;
+
+ 
+  }
+  .form-HU{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: unset;
+  }
+  .user-profile{
+    column-count: 2;
+  }
+
+  .container{
+    width: 75%;
+    align-content: center;
+    background-color: bisque;
+    height: 75%;
+    margin: 10px 30px;
+    padding: 10px;
+    display: flex;
+    justify-self: center;
+
+    
+  }
+  table, tr, th {
+    border: 1px solid;
+    text-align: center;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .container-grid{
+    display:grid;
+    justify-content: center;
+    align-items: center;
+    font-size: larger;
+    justify-self: center;
+  }
+  h6{
+    margin: 10px;
+  }
+  dialog{
+    width: 50%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 5px;
+    font-size: 20px;
+    font-family: sans-serif;
+    box-sizing: border-box;
+  }
+  img{
+    min-width: 150px;
+    max-width: 200px;
+  }
+  a.btn-redirect{
+    padding: 1px 6px;
+    border: 1px outset buttonborder;
+    border-radius: 3px;
+    color: white;
+    background-color: salmon;
+    text-decoration: none;
+    margin:5px;
+    text-align: center;
+
+  }
+  .scroll-container{
+    width: 100%;
+    overflow: auto;
+    max-height: 200px;
+    margin: 10px;
+
+  }
+  form{
+    display: flex;
+    flex-direction: column;
+  }
+  .input-form-label{
+    font-size:medium;
+    margin-left:10px;
+  }
+  input, button{
+    padding: 10px 30px;
+    font-size: large;
+    margin: 10px;
+  }

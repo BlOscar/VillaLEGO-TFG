@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="container-grid container text-center">
+    <h3>Equipo: <%=team.name%></h3>
+    <h3>Kit Asociado: <%=team.kit.name%></h3>
+    <%if(existInTeam){%>
+        <button onclick="leaveTeam()">Salir de equipo</button>
+        <script>
+            async function leaveTeam(){
+                const res = await fetch(`http://localhost:8000/api/leaveStudent/<%=team.id%>`,{
+                method:"DELETE",
+                headers:{
+                "Content-Type":"application/json"
+                },
+                
+            });
+            if(res.ok){
+                window.location.href='/menu';
+            }
+            }
+        </script> 
+    <%}%>
+    <table>
+        <tr>
+            <th>
+                <h6>nombre alumno</h6>
+            </th>
+            <th>
+                rol
+            </th>
+        </tr>
+        <% team.users.forEach(t=>{ %>
+            <tr>
+                <th>
+                    <%= t.name %>
+                </th>
+                <th>
+                    <%= t.TeamStudent.role %>
+                </th>
+            </tr>
+        <%})%>
+
+    </table>
+    <%if(team.sprint){ %>
+            <table>
+                <tr>
+                    <th>nombre HU</th>
+                    <th>imagen HU</th>
+                    <th>Priorizacion</th>
+                    <th>Estimacion</th>
+                </tr>
+                <% 
+                team.sprint.results.forEach(result =>{
+                    if(result.POValidation){%>
+                    <tr>
+                        <td><%=result.HU.name%></td>
+                        <td><img src="/<%=result.urlimage%>" /></td>
+                        <td>
+                            
+                        </td>
+                    </tr>
+                <%}})%>
+                </table>
+        <%}%>
+    </div>
+</body>

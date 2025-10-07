@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style.css">
+
+</head>
+<body>
+    <div class="container-grid">
+        <h1>Villa Lego</h1>
+        <h1>Conexion: 
+            <%if(!isConnected){%>
+                <p style="color: crimson;">No conectado</p>
+                <a href="/login" class="btn-redirect">Login</a>
+
+            <%}else{%>
+                <p style="color: green;">Conectado</p>
+                <a href="/menu" class="btn-redirect">Menu</a>
+
+
+            <%}%>
+        </h1>
+
+    <br>
+    </div>
+    
+    
+</body>
+</html>
