@@ -9,7 +9,7 @@ Visual Studio Code.
 Una vez se tiene todo lo necesario clonamos el proyecto en el ordenador con 
 el siguiente comando:
 
-`g𝑖𝑡 𝑐𝑙𝑜𝑛𝑒 ℎ𝑡𝑡𝑝𝑠://𝑔𝑖𝑡ℎ𝑢𝑏.𝑐𝑜𝑚/𝐵𝑙𝑂𝑠𝑐𝑎𝑟/𝑊𝑒𝑏𝑇𝐹𝐺.𝑔𝑖𝑡`
+`g𝑖𝑡 𝑐𝑙𝑜𝑛𝑒 https://github.com/BlOscar/VillaLEGO-TFG.git`
 
 Se puede utilizar esta instrucción desde una ventana de comandos de git o 
 de extensiones que se tengan implementadas. 

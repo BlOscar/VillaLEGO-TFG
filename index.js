@@ -11,6 +11,17 @@ const jwt = require('jsonwebtoken');
 const fs = require('fs');
 const dotenv = require('dotenv');
 dotenv.config();
+const envPath = path.resolve(__dirname, '.env');
+
+const envContent = `JWT_SECRET = secret
+JWT_EXPIRES = 1d`;
+
+if(fs.existsSync(envPath)){
+    console.log('El archivo .env ya existe.');
+}else{
+    fs.writeFileSync(envPath, envContent);
+    console.log('Archivo .env creado');
+}
 
 const passport = require('passport');
 const cookieParser = require('cookie-parser');
@@ -25,17 +36,7 @@ const server = createServer(app);
 const io = new Server(server);
 const socket = require('./middleware/socket');
 
-const envPath = path.resolve(__dirname, '.env');
 
-const envContent = `JWT_SECRET = secret
-JWT_EXPIRES = 1d`;
-
-if(fs.existsSync(envPath)){
-    console.log('El archivo .env ya existe.');
-}else{
-    fs.writeFileSync(envPath, envContent);
-    console.log('Archivo .env creado');
-}
 
 // Configurar middleware
 app.use(passport.initialize());
